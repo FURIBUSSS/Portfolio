@@ -1,0 +1,143 @@
+function levelgui(p: player):
+	set {_nl} to {level::%{_p}'s uuid%} + 1
+	set {_l} to a new chest inventory with 3 rows named "&a&lLEVEL"
+	loop numbers from 0 to 10:
+		set slot loop-value of {_l} to black stained glass pane named "&f"
+	loop numbers from 18 to 26:
+		set slot loop-value of {_l} to black stained glass pane named "&f"
+	set slot 12,14,16 and 17 of {_l} to black stained glass pane named "&f"
+	set slot 11 of {_l} to ender chest named "&aLevel Lootboxes" with lore "" and "&7Lootboxes: &f%format({lootboxes::%{_p}'s uuid%}) ? 0%" and "&8Contains 2-15 Levels" and "" and "&a&lCLICK TO OPEN"
+	set slot 13 of {_l} to book named "&aCurrent Level" with lore "&7Level: &f%format({level::%{_p}'s uuid%}) ? 0%" and "&7Next Level: &f%{_nl}%"	
+	set slot 15 of {_l} to arrow named "&cExit"
+	open {_l} to {_p}
+
+command /level:
+	aliases: levels, lvl, lvls 
+	trigger:
+		play sound "item.book.page_turn" to player
+		levelgui(player)
+
+command /setlevel [<integer>]:
+	aliases: setlvl,slvl
+	permission: op
+	trigger:
+		if arg-1 is set:
+			set {level::%player's uuid%} to arg-1
+			send "&aYour level has been set to %arg-1%"
+on inventory click:
+	if name of event-inventory = "&a&lLEVEL":
+		cancel event
+		if index of event-slot = 11:
+			if {lootboxes::%player's uuid%} > 0:
+				play sound "block.ender_chest.open" to player
+				loop {lootboxes::%player's uuid%} times:
+					set {_r} to a random integer between 2 and 15
+					add {_r} to {_total}
+				close player's inventory
+				send "&aYou opened &f%{lootboxes::%player's uuid%}% &a&lLEVEL LOOTBOXES &aand received &f%{_total}% Levels&a!"
+				set {lootboxes::%player's uuid%} to 0
+				add {_total} to {level::%player's uuid%}
+				stop
+			else:
+				play sound "block.ender_chest.close" to player
+				send "&cYou don't have any lootboxes to open!"
+				close player's inventory
+				stop
+		
+		if index of event-slot = 15:
+			close player's inventory
+
+command /lootbox [<player>] [<text>] [<integer>]:
+	permission: lootbox.admin
+	trigger:
+		if arg-1 is set:
+			if arg-2 is "give":
+				if arg-3 is set:
+					add arg-3 to {lootboxes::%arg-1's uuid%}
+					send "&aGave %arg-3% level lootboxes to %arg-1%!"
+					send "&aYou received &f%arg-3% &flootboxes!" to arg-1
+					stop
+				else:
+					add 1 to {lootboxes::%arg-1's uuid%}
+					send "&aGave 1 level lootboxes to %arg-1%!"
+					send "&aYou received &f1 &flootboxes!" to arg-1
+					stop
+			else:
+				send "&cNot enough arguments!"
+				stop
+		else:
+			send "&cYou need to specify the player!"
+			stop
+
+on damage:
+	set {_whitelist::*} to a player, villager, cat, dolphin, pig, cow,sheep, chicken, squid, mooshroom, horse, llama, wolf, ocelot, parrot, rabbit, panda, fox and bat
+	if attacker is player:
+		if {_whitelist::*} does not contain victim:
+			if {level::%attacker's uuid%} > 100:
+				set {_difficulty} to a random integer between 150 and 550
+				set {_balancer} to a random integer between 2 and 10
+				if victim's name does not contain "&4&l[✯":
+
+					set {difficulty::%victim%} to {_difficulty}
+					set max health of victim to victim's max health * {_difficulty}/{_balancer}
+					
+					heal victim
+					apply infinite potion of strength {_difficulty}/150 without any particles whilst hiding the potion icon to the victim
+					apply infinite potion of speed {_difficulty}/150 without any particles whilst hiding the potion icon to the victim
+					set name of victim to "&7(&c%victim's health%&8/&4%victim's max health%&7) &4&l[✯%{_difficulty}%]"
+					while victim is alive:
+						wait 1 seconds
+						set name of victim to "&7(&c%victim's health%&8/&4%victim's max health%&7) &4&l[✯%{_difficulty}%]"
+			else:
+				set {_difficulty} to a random integer between 10 and 100
+				set {_balancer} to a random integer between 5 and 15
+				if victim's name does not contain "&4&l[✯":
+					if {level::%attacker's uuid%} >= 5:
+
+						set {difficulty::%victim%} to {_difficulty}
+						set max health of victim to victim's max health * {_difficulty}/{_balancer}
+						
+						heal victim
+						apply infinite potion of strength {_difficulty}/50  without any particles whilst hiding the potion icon to the victim
+						apply infinite potion of speed {_difficulty}/50 without any particles whilst hiding the potion icon to the victim
+						set name of victim to "&7(&c%victim's health%&8/&4%victim's max health%&7) &4&l[✯%{_difficulty}%]"
+						while victim is alive:
+							wait 1 seconds
+							set name of victim to "&7(&c%victim's health%&8/&4%victim's max health%&7) &4&l[✯%{_difficulty}%]"
+					if {level::%attacker's uuid%} < 5:
+						set {difficulty::%victim%} to 10
+						set name of victim to "&7(&c%victim's health%&8/&4%victim's max health%&7) &4&l[✯%{_difficulty}%]"
+						while victim is alive:
+							wait 1 seconds
+							set name of victim to "&7(&c%victim's health%&8/&4%victim's max health%&7) &4&l[✯%{_difficulty}%]"						
+on death:
+	set {_whitelist::*} to a player, villager, cat, dolphin, pig, cow,sheep, chicken, squid, mooshroom, horse, llama, wolf, ocelot, parrot, rabbit, panda, fox and bat
+	if attacker is player:
+		if {_whitelist::*} does not contain victim:
+			if {difficulty::%victim%} > 5:
+				set {_r} to ({difficulty::%victim%}/1.3)*1.7
+				add {_r} to {level::xp::%attacker's uuid%}
+				send action bar "&a+✯ %{_r}% XP" to attacker
+				delete {difficulty::%victim%}
+			if {difficulty::%victim%} <= 5:
+				set {_r} to random integer between 10 and 35
+				add {_r} to {level::xp::%attacker's uuid%}
+				send action bar "&a+✯ %{_r}% XP" to attacker				
+
+
+		if {level::xp::%attacker's uuid%} >= {level::need::%attacker's uuid%}:
+			add 1 to {level::%attacker's uuid%}
+			set {level::xp::%attacker's uuid%} to 0
+			set {_RNGXP} to a random integer between 100 and 350
+			add {_RNGXP}*{level::%attacker's uuid%} to {level::need::%attacker's uuid%}
+			send title "&a&lLEVEL UP" with subtitle "&f&lNew Level &a&l[✯ %{level::%attacker's uuid%}%]" to attacker
+
+		if {level::need::%attacker's uuid%} is not set:
+			set {level::need::%attacker's uuid%} to 100
+
+
+
+
+
+
+
