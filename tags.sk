@@ -1,0 +1,69 @@
+function tagselect(p: player):
+	set {_s} to a new chest inventory with 5 rows named "<##9bddff>&lTAGS MAIN MENU"
+	set slot 0,1,2,3,4,5,6,7,8,9,17,18,26,27,35,36,37,38,39,41,42,43,44 of {_s} to gray stained glass pane named ""
+	set slot 22 of {_s} to bookshelf named "<##6390cf>&l&nREGULAR TAGS" with lore "&8Menu Selector" and "" and "&7Tags unlocked via crates," and "&7quests, missions and more!" and "" and "&f&nClick to view!"
+	set slot 40 of {_s} to barrier block named "&c&lClose"
+	open {_s} to {_p}
+
+function tags(p: player):
+	set {_s} to a new chest inventory with 4 rows named "<##9bddff>&lTAGS"
+	set slot 0,1,2,3,4,5,6,7,8,9,17,18,26,27,28,29,30,32,33,34,35 of {_s} to gray stained glass pane named ""
+	
+	if {_p} has permission "tag.ilbbl":
+		set slot 10 of {_s} to name tag named "&c&lILBBL &fTag" with lore "&8Tag" and "" and "&8» &f&nPreview&r&f: &c[&6&lI love Big Booty Latinas&c]" and "" and "&a&nUnlocked"
+	else:
+		set slot 10 of {_s} to name tag named "&c&lILBBL &fTag" with lore "&8Tag" and "" and "&8» &f&nPreview&r&f: &c[&6&lI love Big Booty Latinas&c]" and "" and "&c&nLocked"
+	
+	if {_p} has permission "tag.nokia":
+		set slot 11 of {_s} to name tag named "&c&lNOKIA &fTag" with lore "&8Tag" and "" and "&8» &f&nPreview&r&f: &9[&1&lNOKIA&9]" and "" and "&a&nUnlocked"
+	else:
+		set slot 11 of {_s} to name tag named "&c&lNOKIA &fTag" with lore "&8Tag" and "" and "&8» &f&nPreview&r&f: &9[&1&lNOKIA&9" and "" and "&c&nLocked"
+
+	set slot 31 of {_s} to barrier block named "&c&lClose"
+	open {_s} to {_p}
+
+command /tags:
+	trigger:
+		tagselect(player)
+
+on inventory click:
+	if name of event-inventory = "<##9bddff>&lTAGS MAIN MENU":
+		cancel event
+		if index of event-slot = 22:
+			tags(player)
+		if index of event-slot = 40:
+			close player's inventory
+
+on inventory click:
+	if name of event-inventory = "<##9bddff>&lTAGS":
+		cancel event
+		if index of event-slot = 10:
+			if player has permission "tag.ilbbl":
+				if {tag::%player's uuid%} is "&c[&6&lI love Big Booty Latinas&c]":
+					set {tag::%player's uuid%} to ""
+					send "&cYou removed your tag!"
+					close player's inventory
+				else:
+					set {tag::%player's uuid%} to "&c[&6&lI love Big Booty Latinas&c]"
+					send "&aYou set your tag to &c[&6&lI love Big Booty Latinas&c]&a!"
+					close player's inventory
+			else:
+				close player's inventory
+				send "&cYou don't have permission to use this tag!"
+		
+		if index of event-slot = 11:
+			if player has permission "tag.nokia":
+				if {tag::%player's uuid%} is "&9[&1&lNOKIA&9]":
+					set {tag::%player's uuid%} to ""
+					close player's inventory
+					send "&cYou removed your tag!"
+				else:
+					set {tag::%player's uuid%} to "&9[&1&lNOKIA&9]"
+					send "&aYou set your tag to &9[&1&lNOKIA&9]&a!"
+					close player's inventory
+			else:
+				close player's inventory
+				send "&cYou don't have permission to use this tag!"
+		
+		if index of event-slot = 31:
+			close player's inventory
