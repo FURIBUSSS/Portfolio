@@ -1,0 +1,50 @@
+command /spawn:
+	trigger:
+		set {_loc} to player's x coordinates
+		set {_locy} to player's y coordinates
+		set {_secs} to 3
+		send action bar "&cTeleporting to spawn! Don't Move! (%{_secs}%s left)" to player
+		wait 1 second
+		if {_loc} is player's x coordinates:
+			if {_locy} is player's y coordinates:
+				remove 1 from {_secs}
+				send action bar "&cTeleporting to spawn! Don't Move! (%{_secs}%s left)" to player
+				wait 1 second
+				if {_loc} is player's x coordinates:
+					if {_locy} is player's y coordinates:
+						remove 1 from {_secs}
+						send action bar "&cTeleporting to spawn! Don't Move! (%{_secs}%s left)" to player
+						wait 1 second
+						if {_loc} is player's x coordinates:
+							if {_locy} is player's y coordinates:
+								send action bar "&aDone!" to player
+								play sound "entity.enderman.teleport" to player
+								teleport player to {spawn}
+							else:
+								send action bar "&cYou Moved!" to player
+							play sound "entity.ender_eye.death" to player					
+						else:
+							send action bar "&cYou Moved!" to player
+							play sound "entity.ender_eye.death" to player					
+					else:
+						send action bar "&cYou Moved!" to player
+						play sound "entity.ender_eye.death" to player							
+				else:
+					send action bar "&cYou Moved!" to player
+					play sound "entity.ender_eye.death" to player
+			else:
+				send action bar "&cYou Moved!" to player
+				play sound "entity.ender_eye.death" to player
+		else:
+			send action bar "&cYou Moved!" to player
+			play sound "entity.ender_eye.death" to player
+
+command /setspawn:
+	permission: op
+	trigger:
+		set {spawn} to player's location
+		send action bar "&aSpawn location set successfully!" to player
+
+on join:
+	wait 1 tick
+	teleport player to {spawn}
