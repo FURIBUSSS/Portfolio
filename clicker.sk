@@ -1,0 +1,69 @@
+options:
+	bubble_waitTime: 3 ticks
+
+function bubbleVisual(p: player):
+	if {bubble::%{_p}'s uuid%} is not alive:
+		set {_l} to location 0.8 meter above {_p}'s head location
+		# Spawn the display
+		spawn text display at {_l}
+		set {_i} to last spawned text display
+		set display teleport duration of {_i} to 2
+		set display text of {_i} to "<##ed75ff>&lCONTAINER CAPACITY" and "<##ed75ff>(&f%int tag "custom;bgAmount" of nbt of {_p}%<##ed75ff>/&f%int tag "custom;bgMax" of nbt of {_p}%<##ed75ff>)"
+		set billboard of {_i} to center
+		set display scale of {_i} to vector(0.8,0.8,0.8)
+		apply drop shadow to {_i}
+		
+		set {bubble::%{_p}'s uuid%} to {_i}
+		
+		while {bubble::%{_p}'s uuid%} is alive:
+			wait 1 tick
+			set {_l} to location 0.8 meter above {_p}'s head location
+			# Update display 
+			set display text of {bubble::%{_p}'s uuid%} to "<##ed75ff>&lCONTAINER CAPACITY" and "<##ed75ff>(&f%int tag "custom;bgAmount" of nbt of {_p}%<##ed75ff>/&f%int tag "custom;bgMax" of nbt of {_p}%<##ed75ff>)"
+			teleport {bubble::%{_p}'s uuid%} to {_l}
+
+on left click:
+	bubbleVisual(player)
+	if int tag "custom;bgAmount" of nbt of player is not set:
+		set int tag "custom;bgAmount" of nbt of player to 0
+		set int tag "custom;bgMax" of nbt of player to 10
+		set boolean tag "custom;bgIsBlowing" of nbt of player to false
+
+
+	if boolean tag "custom;bgIsBlowing" of nbt of player is false:
+		set boolean tag "custom;bgIsBlowing" of nbt of player to true
+		
+		if player's gravity attribute > 0.02:
+			set player's gravity attribute to 0.08 - ({bubble::size::%player's uuid%}/10)
+		else:
+			set player's gravity attribute to 0.02
+
+		
+		if int tag "custom;bgAmount" of nbt of player < int tag "custom;bgMax" of nbt of player:
+			add 1 to int tag "custom;bgAmount" of nbt of player
+			send action bar "<##ed75ff>&lBlowing. <##ed75ff>(&f%int tag "custom;bgAmount" of nbt of player%<##ed75ff>/&f%int tag "custom;bgMax" of nbt of player%<##ed75ff>)" to player
+			wait {@bubble_waitTime}
+			send action bar "<##ed75ff>&lBlowing.. <##ed75ff>(&f%int tag "custom;bgAmount" of nbt of player%<##ed75ff>/&f%int tag "custom;bgMax" of nbt of player%<##ed75ff>)" to player
+			wait {@bubble_waitTime}
+			send action bar "<##ed75ff>&lBlowing... <##ed75ff>(&f%int tag "custom;bgAmount" of nbt of player%<##ed75ff>/&f%int tag "custom;bgMax" of nbt of player%<##ed75ff>)" to player
+			wait {@bubble_waitTime}
+			set boolean tag "custom;bgIsBlowing" of nbt of player to false
+		else:
+			send action bar "<##ed75ff>&lMAX Bubble Capacity REACHED&f&l!"
+			wait {@bubble_waitTime}
+			set boolean tag "custom;bgIsBlowing" of nbt of player to false
+
+on region enter:
+	wait 1 tick
+	if "%region at player%" contains "sellgum":
+		add int tag "custom;bgAmount" of nbt of player to player's balance
+		send title "<##ed75ff>&lBUBBLEGUM POPPED&f&l!" with subtitle "&fYou gained &a+%int tag "custom;bgAmount" of nbt of player% <##ed75ff>Ⓑ Coins&f!" to player for 2 seconds
+		set int tag "custom;bgAmount" of nbt of player to 0
+		kill {bubble::%player's uuid%}
+		set player's gravity attribute to 0.08
+		
+
+command /gumreset:
+	trigger:
+		set int tag "custom;bgAmount" of nbt of player to 0
+		set int tag "custom;bgMax" of nbt of player to 10
