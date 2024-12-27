@@ -1,0 +1,200 @@
+command /tutorial:
+	trigger:
+		boolean tag "custom;cutscening" of nbt compound of player isn't true
+		#name of player = "Astratical" or "LMCnetwork"
+		set boolean tag "custom;cutscening" of nbt compound of player to true
+		hide player from all players
+		#apply invisibility 255 to player for 3 seconds
+			
+		#apply blindness 255 to player for 3 seconds
+		#wait 2 seconds
+		hide all players from player
+		if 1 = 1:
+			set player's gamemode to spectator
+			summon armor stand at location(85.5, 76.5, 286, world "testspawn", 0, -90)
+			set {_entity} to last spawned armor stand
+			make last spawned armor stand invisible
+			set gravity of last spawned armor stand to false
+			set spectator target of player to last spawned armor stand
+			
+			#hide {_entity} from all players
+
+			joinanimation(player)
+
+			set {_end} to location(99.5, 69, 273.5, world "testspawn", 0, -180)
+			set {_start} to location(85.5, 76.5, 286, world "testspawn", 0, -90)
+
+			set {_controlX} to 100
+			set {_controlY} to 71
+			set {_controlZ} to 287
+			set {_control} to location({_controlX}, {_controlY}, {_controlZ}, world "testspawn", -45, 0)
+
+			animateAcross({_entity}, 40, {_start}, {_control}, {_end}, "testspawn")
+			wait 40 ticks
+			wait 2 second
+			
+			#_____________________________
+			set {_end} to location(101.5, 70.5, 269.3, world "testspawn", 15, 160)
+			set {_start} to location(99.5, 69.0, 273.5, world "testspawn", 0, -180)
+
+			set {_controlX} to 94.5
+			set {_controlY} to 73.5
+			set {_controlZ} to 271.5
+			set {_control} to location({_controlX}, {_controlY}, {_controlZ}, world "testspawn", 3, -170)
+
+			animateAcross({_entity}, 25, {_start}, {_control}, {_end}, "testspawn")
+			wait 25 ticks
+			send title "<##03a1fc>&lYOUR CORE" with subtitle "&7(( &fRead Chat &7))" to player with fadein 0 ticks with fadeout 2 seconds
+			send "%nl%<##03a1fc>&lYOUR CORE%nl%%nl%&7Your core constantly generates%nl%&7money for you. Purchase upgrades%nl%&7to increase the monetary%nl%&7output and generation speed by%nl%&eright-clicking &7your core.%nl%&r"
+			play sound "block.amethyst_block.break" to player	
+			wait 5 seconds
+			
+			
+			#_____________________________
+			set {_end} to location(105.7, 67.9, 268.3, world "testspawn", 5, -40)
+			set {_start} to location(101.5, 70.5, 269.3, world "testspawn", 15, 160)
+
+			set {_controlX} to 106.0
+			set {_controlY} to 69.5
+			set {_controlZ} to 265.8
+			set {_control} to location({_controlX}, {_controlY}, {_controlZ}, world "testspawn", 10, -56)
+
+			animateAcross({_entity}, 20, {_start}, {_control}, {_end}, "testspawn")
+			wait 20 ticks
+			send title "<##a154ff>&lʀᴇꜱᴇᴀʀᴄʜ ꜱᴄɪᴇɴᴛɪꜱᴛ" with subtitle "&7(( &fRead Chat &7))" to player with fadein 0 ticks with fadeout 2 seconds
+			send "<##a154ff>&lʀᴇꜱᴇᴀʀᴄʜ ꜱᴄɪᴇɴᴛɪꜱᴛ%nl%%nl%&7Research different projects here%nl%&7in order to upgrade your core,%nl%&7your stats, and much more.%nl%&r"
+			play sound "block.amethyst_block.break" to player
+			wait 5 seconds
+			
+			
+			#_____________________________
+			set {_end} to location(102.5, 68.0, 272.3, world "testspawn", 7, -23)
+			set {_start} to location(105.7, 67.9, 268.3, world "testspawn", 5, -40)
+
+
+			set {_controlX} to 102.3
+			set {_controlY} to 71.5
+			set {_controlZ} to 270.8
+			set {_control} to location({_controlX}, {_controlY}, {_controlZ}, world "testspawn", 23, -45)
+
+			animateAcross({_entity}, 20, {_start}, {_control}, {_end}, "testspawn")
+			wait 20 ticks
+			send title "<##990402>ʙᴏꜱꜱ ꜱᴜᴍᴍᴏɴᴇʀ" with subtitle "&7(( &fRead Chat &7))" to player with fadein 0 ticks with fadeout 2 seconds
+			send "<##990402>ʙᴏꜱꜱ ꜱᴜᴍᴍᴏɴᴇʀ%nl%%nl%&7Summon powerful bosses here.%nl%&7Defeat them for monetary rewards%nl%&7Upgrade your defense robot%nl%&7at your core. Upgrade boss%nl%&7stats with prestiges & Rebirths.%nl%&r"
+			play sound "block.amethyst_block.break" to player
+			wait 5 seconds
+			
+			
+			#_____________________________
+			set {_end} to location(95.8, 68.0, 267.9, world "testspawn", 0, 49)
+			set {_start} to location(102.5, 68.0, 272.3, world "testspawn", 7, -23)
+
+
+			set {_controlX} to 100.3
+			set {_controlY} to 73.5
+			set {_controlZ} to 268.8
+			set {_control} to location({_controlX}, {_controlY}, {_controlZ}, world "testspawn", 35, 35)
+
+			animateAcross({_entity}, 20, {_start}, {_control}, {_end}, "testspawn")
+			wait 20 ticks
+			send title "<##34c0eb>ᴘʀᴇꜱᴛɪɢᴇ ᴍᴀꜱᴛᴇʀ&7 & <##ff4040> ʀᴇʙɪʀᴛʜ ᴍᴀꜱᴛᴇʀ" with subtitle "&7(( &fRead Chat &7))" to player with fadein 0 ticks with fadeout 2 seconds
+			send "<##34c0eb>ᴘʀᴇꜱᴛɪɢᴇ ᴍᴀꜱᴛᴇʀ&7 & <##ff4040> ʀᴇʙɪʀᴛʜ ᴍᴀꜱᴛᴇʀ%nl%%nl%&7Prestige for small rewards,%nl%&7including research points.%nl%&7Rebirth for major rewards,%nl%&7including rebirth points.%nl%&r"
+			play sound "block.amethyst_block.break" to player
+			wait 4 seconds
+			
+			
+			#_____________________________
+			set {_end} to location(99.5, 69.0, 270.5, world "testspawn", 0, 180)
+			set {_start} to location(95.8, 68.0, 267.9, world "testspawn", 0, 49)
+
+
+			set {_controlX} to 97.3
+			set {_controlY} to 80.5
+			set {_controlZ} to 275.8
+			set {_control} to location({_controlX}, {_controlY}, {_controlZ}, world "testspawn", 35, 175)
+
+			animateAcross({_entity}, 30, {_start}, {_control}, {_end}, "testspawn")
+			wait 30 ticks
+			send title "&6&lCOLLECT &f&l'EM" with subtitle "&fEnjoy ;D" to player with fadein 0 ticks with fadeout 2 seconds
+			play sound "block.amethyst_block.break" to player
+
+			teleport player to location(99.5, 69, 270.5, world "testspawn", -180, 0)
+			set player's gamemode to survival
+			kill {_entity}
+			reveal all players to player
+			set boolean tag "custom;cutscening" of nbt compound of player to false
+			reveal player to all players
+
+function animateAcross(entity: object, count: object, start: location, control: location, end: location, world: text):
+	if 1 = 1:
+		if 2 = 2:
+			set {_startYaw} to yaw of {_start}
+			set {_endYaw} to yaw of {_end}
+			set {_startPitch} to pitch of {_start}
+			set {_endPitch} to pitch of {_end}
+
+			loop {_count} times:
+				set {_t} to (loop-number / {_count})
+				set {_t1} to (1 - {_t})
+				set {_t2} to {_t}^2
+				set {_t1_2} to {_t1}^2
+			
+				set {_part1} to {_t1_2} * x-coordinate of {_start}
+				set {_part2} to 2 * {_t1} * {_t} * x-coordinate of {_control}
+				set {_part3} to {_t2} * x-coordinate of {_end}
+				set {_x} to {_part1} + {_part2} + {_part3}
+			
+				set {_part1} to {_t1_2} * y-coordinate of {_start}
+				set {_part2} to 2 * {_t1} * {_t} * y-coordinate of {_control}
+				set {_part3} to {_t2} * y-coordinate of {_end}
+				set {_y} to {_part1} + {_part2} + {_part3}
+			
+				set {_part1} to {_t1_2} * z-coordinate of {_start}
+				set {_part2} to 2 * {_t1} * {_t} * z-coordinate of {_control}
+				set {_part3} to {_t2} * z-coordinate of {_end}
+				set {_z} to {_part1} + {_part2} + {_part3}
+			
+				set {_yaw} to {_t1} * {_startYaw} + {_t} * {_endYaw}
+			
+				set {_pitch} to {_t1} * {_startPitch} + {_t} * {_endPitch}
+			
+				teleport {_entity} to location({_x}, {_y}, {_z}, world "%{_world}%", {_pitch}, {_yaw})
+				wait 1 tick
+on disconnect:
+	set boolean tag "custom;cutscening" of nbt compound of player to false
+	
+on sneak toggle:
+	if boolean tag "custom;cutscening" of nbt compound of player = true:
+		cancel event
+on player stop spectating of armor stand:
+	if boolean tag "custom;cutscening" of nbt compound of player = true:
+		cancel event
+on drop:
+	if boolean tag "custom;cutscening" of nbt compound of player = true:
+		cancel event
+
+on left click:
+	if boolean tag "custom;cutscening" of nbt compound of player = true:
+		cancel event
+
+on right click:
+	if boolean tag "custom;cutscening" of nbt compound of player = true:
+		cancel event
+
+function joinanimation(p: player):
+	set {_letters::*} to "abcdefghijklmnopqrstuvwxyz" split at ""
+	set {_name} to ""
+	set {_list::*} to "Welcome %{_p}%" split at ""
+	delete {_list::%size of {_list::*}-1%}
+	loop {_list::*}:
+		send title "&6&lCOLLECT &f&l'EM" with subtitle "%{_name}%" to {_p} with fadein 0 ticks 
+		play sound "block.note_block.hat" with volume 10 with pitch 1.9 to {_p}
+		wait 2 tick
+		add {_list::%loop-counter%} to {_name}
+	send title "&6&lCOLLECT &f&l'EM" with subtitle "Welcome &e%{_p}%" to {_p} with fadein 0 ticks with fadeout 5 seconds
+	play sound "block.note_block.bell" to {_p}
+	
+
+on first join:
+    wait 6 ticks
+    make player execute command "tutorial"
