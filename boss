@@ -1,0 +1,363 @@
+options:
+	bosstier1_health: 500
+	bosstier2_health: 1250
+	bosstier3_health: 1750
+
+	bosstier1_timetokill: 5 #minutes
+	bosstier2_timetokill: 7  #minutes
+	bosstier3_timetokill: 10  #minutes
+
+	bosstiers_inv: &6Boss Tiers
+	boss_token_reward: 1
+	bosshop_inv: &8Boss Shop
+	boss_armor_price: 10 #boss tokens
+	boss_pet_price: 10 #boss tokens
+	boss_pick_price: 10 #boss tokens
+
+	boss_skull: {profile={id:[I;-553957678,1372275840,-1675236348,660208177],properties:[{name:""textures"",value:""eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNjFkN2E2M2U5NTYxYTA4MTg5MmVjZjU5ZDIzM2I5ZTFhOGRkYWJiODAwNmExNGIxNzg1MmEyN2I1Yzg4MTgzMiJ9fX0=""}]}}
+
+function spawnBoss(p: player, tier: string):
+	#BOSS SKULL & INITIALIZATION
+	set {_l} to location(99.500, 72, 278.500, world "testspawn")
+	spawn fake lightning at {_l} for {_p}
+	set {_l}'s pitch to 0
+	spawn item display at {_l}
+	set {_i} to last spawned item display
+	set display teleport duration of {_i} to 2
+	rotate {_i} around x axis by 0 degrees
+	make {_i} disappear from {_p}
+	make {_i} appear to {_p}
+	set {_bossS} to player skull
+    add {@boss_skull} to nbt compound of {_bossS}
+	set display item of {_i} to {_bossS}
+	set display scale of {_i} to vector(6,6,6)
+	set display text background color of {_i} to bukkitColor(0,0,0,0)
+
+	#HP DISPLAY INIT
+	spawn text display above {_i}
+	set {_hp} to last spawned entity
+	set display text of {_hp} to "&c&lʙᴏꜱꜱ ꜰɪɢʜᴛ" and "&8[&c%{boss::health::%{_p}'s uuid%}%&8/&4%{boss::healthM::%{_p}'s uuid%}%&8]"
+	set display scale of {_hp} to vector(5,5,5)
+	set billboard of {_hp} to center
+	apply drop shadow to {_hp}
+	set display text background color of {_hp} to bukkitColor(0,0,0,0)
+
+	#LIFESPAN DISPLAY INIT
+	spawn text display 3.5 meters above {_i}
+	set {_ls} to last spawned entity
+	set display text of {_ls} to "<##bf2a2a>&lʙᴏꜱꜱ ᴛɪᴍᴇʀ&f: &f0:0"
+	set display scale of {_ls} to vector(7,7,7)
+	set billboard of {_ls} to center
+	apply drop shadow to {_ls}
+	set display text background color of {_ls} to bukkitColor(0,0,0,0)
+
+
+	#HITBOX INIT
+	spawn interaction at location(99.500, 69, 278.500, world "testspawn")
+	set {_hitbox} to last spawned interaction
+	set interaction height of {_hitbox} to 3
+	add 3 to interaction width of {_hitbox}
+	set is responsive of {_hitbox} to true
+	
+	#HIDE PACKETS
+	loop all players:
+		make {_i} disappear from loop-player
+		make {_hp} disappear from loop-player
+		make {_hitbox} disappear from loop-player
+		make {_ls} disappear from loop-player
+
+	#VAR SET
+	set {boss::%{_p}'s uuid%} to {_i}
+	set {boss::hitbox::%{_p}'s uuid%} to {_hitbox}
+	set {boss::lifespanDisplay::%{_p}'s uuid%} to {_ls}
+	set {boss::hpDisplay::%{_p}'s uuid%} to {_hp}
+	set {boss::isAlive::%{_p}'s uuid%} to true
+	set {boss::bossTimer::seconds::%{_p}'s uuid%} to 0
+
+
+	if {_tier} is "tier1":
+		set {boss::health::%{_p}'s uuid%} to {@bosstier1_health} * (1 + {prestige::%{_p}'s uuid%})
+		set {boss::healthM::%{_p}'s uuid%} to {@bosstier1_health} * (1 + {prestige::%{_p}'s uuid%})
+
+		set {boss::bossTimer::minutes::%{_p}'s uuid%} to {@bosstier1_timetokill}
+	if {_tier} is "tier2":
+		set {boss::health::%{_p}'s uuid%} to {@bosstier2_health} * (1 + {prestige::%{_p}'s uuid%})
+		set {boss::healthM::%{_p}'s uuid%} to {@bosstier2_health} * (1 + {prestige::%{_p}'s uuid%})
+
+		set {boss::bossTimer::minutes::%{_p}'s uuid%} to {@bosstier2_timetokill}
+	if {_tier} is "tier3":
+		set {boss::health::%{_p}'s uuid%} to {@bosstier3_health} * (1 + {prestige::%{_p}'s uuid%})
+		set {boss::healthM::%{_p}'s uuid%} to {@bosstier3_health} * (1 + {prestige::%{_p}'s uuid%})
+	
+		set {boss::bossTimer::minutes::%{_p}'s uuid%} to {@bosstier3_timetokill}
+
+
+
+	#REVEAL PACKETS TO PLAYER
+	make {_i} appear from {_p}
+	make {_hp} appear from {_p}
+	make {_hitbox} appear from {_p}
+	make {_ls} appear from {_p}
+
+	while {boss::isAlive::%{_p}'s uuid%} = true:
+		bounce({boss::%{_p}'s uuid%},0.1)
+		set display text of {boss::hpDisplay::%{_p}'s uuid%} to "&c&lʙᴏꜱꜱ ꜰɪɢʜᴛ" and "&8[&c%{boss::health::%{_p}'s uuid%}%&8/&4%{boss::healthM::%{_p}'s uuid%}%&8]"
+		set display text of {boss::lifespanDisplay::%{_p}'s uuid%} to "<##bf2a2a>&lᴛɪᴍᴇʀ&f: &f%{boss::bossTimer::minutes::%{_p}'s uuid%}%:%{boss::bossTimer::seconds::%{_p}'s uuid%}%"
+		set display text of {boss::lifespanDisplay::%{_p}'s uuid%} to "<##bf2a2a>&lᴛɪᴍᴇʀ&f: &f%{boss::bossTimer::minutes::%{_p}'s uuid%}%:0%{boss::bossTimer::seconds::%{_p}'s uuid%}%" if {boss::bossTimer::seconds::%{_p}'s uuid%} < 10
+		wait 4.5 ticks
+		make {_i} appear to {_p}
+		make {_hp} appear to {_p}
+		make {_hitbox} appear to {_p}
+		make {_ls} appear to {_p}
+
+function bossVisual(p: player, dmg: number):
+	set {_r} to a random integer between 98 and 100
+	set {_r3} to a random integer between 68.800 and 71.200
+	set {_l} to location({_r}, {_r3}, 276.500, world "testspawn")
+	spawn text display at {_l}
+	set {_i} to last spawned text display
+	loop all players:
+		make {_i} disappear from loop-player
+	make {_i} appear to {_p}
+	set display text of {_i} to "&f🗡 <##ad2a2a>&l-%{_dmg}% HP"
+	set display scale of {_i} to vector(1,1,1)
+	apply drop shadow to {_i}
+	set billboard of {_i} to center
+	set display text background color of {_i} to bukkitColor(0,0,0,0)
+	wait 0.65 seconds
+	kill {_i}
+
+function bounce(bouncedEntity: entity, strength: number):
+	set display teleport duration of {_bouncedEntity} to 2
+	set {_origin} to location of {_bouncedEntity}
+	loop 3 times:
+		wait a tick
+		add 0.05 to {_distance}
+		teleport {_bouncedEntity} to location {_distance} meter above {_bouncedEntity}
+	set {_distance} to 0
+	wait 2 ticks
+	loop 3 times:
+		wait a tick
+		add 0.05 to {_distance}
+		teleport {_bouncedEntity} to location {_distance}*-1 meter above {_bouncedEntity}
+	wait 1 tick
+	teleport {_bouncedEntity} to {_origin}
+
+
+function bossTiersInv(p: player):
+	set {_s} to new chest inventory with 3 rows named "{@bosstiers_inv}"
+	set slot 0,1,2,3,4,5,6,7,8,9,11,13,15,17,18,19,20,21,22,23,24,25 and 26 of {_s} to black stained glass pane
+	set slot 10 of {_s} to wooden sword named "&eTier &f1" with lore "&7- &fHealth: &c{@bosstier1_health}" and "&7- &fTime to kill: &6{@bosstier1_timetokill}m"
+	set slot 12 of {_s} to stone sword named "&eTier &f2" with lore "&7- &fHealth: &c{@bosstier2_health}" and "&7- &fTime to kill: &6{@bosstier2_timetokill}m"
+	set slot 14 of {_s} to iron sword named "&eTier &f3" with lore "&7- &fHealth: &c{@bosstier3_health}" and "&7- &fTime to kill: &6{@bosstier3_timetokill}m"
+	set slot 16 of {_s} to barrier named "&cExit"
+	open {_s} to {_p}
+
+
+function bossShopInv(p: player):
+	set {_s} to new chest inventory with 3 rows named "{@bosshop_inv}"
+	set slot 0,1,2,3,4,5,6,7,8,9,17,18,19,20,21,22,23,24,25 and 26 of {_s} to black stained glass pane
+	set slot 10 of {_s} to wither skeleton skull named "&8Boss pet" with lore "&a+ &bSpeed &fI" and "&ePrice&f: {@boss_pet_price} &8Boss Tokens"
+	set slot 13 of {_s} to netherite chestplate named "&8Boss Armor" with lore "&a+ &c20%% Damage" and "&ePrice&f: {@boss_armor_price} &8Boss Tokens"
+	set slot 16 of {_s} to netherite pickaxe of efficiency 3 named "&8Boss Pickaxe" with lore "&ePrice&f: {@boss_pick_price} &8Boss Tokens"
+	open {_s} to {_p}
+
+
+every 1 second:
+	loop all players where [{player::bossPetHasBought::%input's uuid%} is true]:
+		apply speed 1 to loop-player for 2 seconds replacing existing effect
+
+on damage:
+	if victim is {boss::hitbox::%attacker's uuid%}:
+
+		if {lasthit::%attacker's uuid%} is not set:
+			set {lasthit::%attacker's uuid%} to now
+		if difference between {lasthit::%attacker's uuid%} and now is more than 1 second:
+			if {boss::health::%attacker's uuid%} > 20:
+
+				set {_dmg} to 20 + ({boss::damage::%attacker's uuid%} * 10)
+				if name of attacker's helmet is "&8Boss Armor":
+					name of attacker's chestplate is "&8Boss Armor"
+					name of attacker's leggings is "&8Boss Armor"
+					name of attacker's boots is "&8Boss Armor"
+
+					set {_dmgInc} to 0.2 * {_dmg}
+					add {_dmgInc} to {_dmg}
+
+
+				bossVisual(attacker, {_dmg})
+				remove {_dmg} from {boss::health::%attacker's uuid%} 
+				
+				play sound "entity.player.hurt" to attacker
+				set {lasthit::%attacker's uuid%} to now
+			else:
+				send "" to attacker
+				send "             &f&lBoss Fight Summary" to attacker
+				send "" to attacker
+				send "          &a&lYou defeated the boss." to attacker
+				send "" to attacker
+				send "            &a&l%500 * (1 + {prestige::%attacker's uuid%})% &aEarned. &7(x%int tag "custom;mMulti" of nbt of attacker% Multi.)" to attacker
+				send "                &a+ &a&l{@boss_token_reward} &7&lBoss Token" to attacker
+				add 500 * (1 + {prestige::%attacker's uuid%}) to {money::%attacker's uuid%}
+				
+				add {@boss_token_reward} to {bosstokens::%attacker's uuid%}
+
+				set {boss::isAlive::%attacker's uuid%} to false
+				spawn fake lightning at {boss::%attacker's uuid%}'s location for attacker
+				kill {boss::%attacker's uuid%}
+				kill {boss::hpDisplay::%attacker's uuid%} 
+				kill {boss::hitbox::%attacker's uuid%} 
+				delete {boss::health::%attacker's uuid%}
+				set {robot::isAlive::%attacker's uuid%} to false
+				kill {robot::hpDisplay::%attacker's uuid%} 
+				kill {robot::%attacker's uuid%}
+				kill {boss::lifespanDisplay::%attacker's uuid%}
+
+
+every 1 seconds:
+	loop all players where [{boss::isAlive::%input's uuid%} is true]:
+		if {boss::bossTimer::seconds::%loop-player's uuid%} is not 0:
+			remove 1 from {boss::bossTimer::seconds::%loop-player's uuid%}
+		else if {boss::bossTimer::seconds::%loop-player's uuid%} is 0:
+			if {boss::bossTimer::minutes::%loop-player's uuid%} is not 0:
+				set {boss::bossTimer::seconds::%loop-player's uuid%} to 59
+				remove 1 from {boss::bossTimer::minutes::%loop-player's uuid%}
+			else if {boss::bossTimer::minutes::%loop-player's uuid%} is 0:
+				if {boss::bossTimer::seconds::%loop-player's uuid%} is 0:
+					delete {boss::bossTimer::seconds::%loop-player's uuid%}
+					delete {boss::bossTimer::minutes::%loop-player's uuid%}
+
+					set {boss::isAlive::%loop-player's uuid%} to false
+					kill {boss::%loop-player's uuid%}
+					kill {boss::hpDisplay::%loop-player's uuid%} 
+					kill {boss::hitbox::%loop-player's uuid%} 
+					delete {boss::health::%loop-player's uuid%}
+					set {robot::isAlive::%loop-player's uuid%} to false
+					kill {robot::%loop-player's uuid%}
+					kill {robot::hpDisplay::%loop-player's uuid%}
+					kill {boss::lifespanDisplay::%loop-player's uuid%}
+
+					send title "&cYOUR BOSS HAS" with subtitle "&ebeen despawned&l!" to loop-player
+
+on inventory click:
+	if name of event-inventory is "{@bosstiers_inv}":
+		cancel event
+		if index of event-slot is 10:
+			if {boss::%player's uuid%} is not alive:
+				if {money::%player's uuid%} >= 250 * (1 + {boss::summoned::%player's uuid%}):
+					remove 250 * (1 + {boss::summoned::%player's uuid%}) from {money::%player's uuid%}
+					add 1 to {boss::summoned::%player's uuid%}
+					robotCreate(player)
+					spawnBoss(player, "tier1") # spawn boss tier1
+					while {boss::isAlive::%player's uuid%} = true:
+						if player is online:
+							if {robot::isAlive::%player's uuid%} = false:
+								stop loop
+							if {robot::isAlive::%player's uuid%} = true:
+								set {_t} to (11 - {robot::speed::%player's uuid%}) 
+								wait "%{_t}% seconds" parsed as timespan
+								robotAttack(player)
+						else:
+							stop loop
+				else:
+					send action bar "&cYou don't have enough &c&lMONEY &cto summon a boss! (%250 * (1 + {boss::summoned::%player's uuid%}) - {money::%player's uuid%}% Required)"
+			else:
+				send action bar "&cYou already &c&lSUMMONED &ca boss!"
+
+
+		else if index of event-slot is 12:
+			if {boss::%player's uuid%} is not alive:
+				if {money::%player's uuid%} >= 250 * (1 + {boss::summoned::%player's uuid%}):
+					remove 250 * (1 + {boss::summoned::%player's uuid%}) from {money::%player's uuid%}
+					add 1 to {boss::summoned::%player's uuid%}
+					robotCreate(player)
+					spawnBoss(player, "tier2") # spawn boss tier2
+					while {boss::isAlive::%player's uuid%} = true:
+						if player is online:
+							if {robot::isAlive::%player's uuid%} = false:
+								stop loop
+							if {robot::isAlive::%player's uuid%} = true:
+								set {_t} to (11 - {robot::speed::%player's uuid%}) 
+								wait "%{_t}% seconds" parsed as timespan
+								robotAttack(player)
+						else:
+							stop loop
+				else:
+					send action bar "&cYou don't have enough &c&lMONEY &cto summon a boss! (%250 * (1 + {boss::summoned::%player's uuid%}) - {money::%player's uuid%}% Required)"
+			else:
+				send action bar "&cYou already &c&lSUMMONED &ca boss!"
+
+		else if index of event-slot is 14:
+			if {boss::%player's uuid%} is not alive:
+				if {money::%player's uuid%} >= 250 * (1 + {boss::summoned::%player's uuid%}):
+					remove 250 * (1 + {boss::summoned::%player's uuid%}) from {money::%player's uuid%}
+					add 1 to {boss::summoned::%player's uuid%}
+					robotCreate(player)
+					spawnBoss(player, "tier3") # spawn boss tier3
+					while {boss::isAlive::%player's uuid%} = true:
+						if player is online:
+							if {robot::isAlive::%player's uuid%} = false:
+								stop loop
+							if {robot::isAlive::%player's uuid%} = true:
+								set {_t} to (11 - {robot::speed::%player's uuid%}) 
+								wait "%{_t}% seconds" parsed as timespan
+								robotAttack(player)
+						else:
+							stop loop
+				else:
+					send action bar "&cYou don't have enough &c&lMONEY &cto summon a boss! (%250 * (1 + {boss::summoned::%player's uuid%}) - {money::%player's uuid%}% Required)"
+			else:
+				send action bar "&cYou already &c&lSUMMONED &ca boss!"
+
+
+on inventory click:
+	if name of event-inventory is "{@bosshop_inv}":
+		cancel event
+		if index of event-slot is 10:	
+			if {bosstokens::%player's uuid%} >= {@boss_pet_price}:
+				if {player::bossPetHasBought::%player's uuid%} is not true:
+					set {player::bossPetHasBought::%player's uuid%} to true
+					send "&eYou have bought &cx1 &8Boss Pet &asuccessfully!" to player
+				else:
+					close player's inventory
+					send "&cYou already bought this!"
+			else:
+				send "&cInsufficient &8Boss Tokens" to player
+				
+		else if index of event-slot is 13:	
+			if {bosstokens::%player's uuid%} >= {@boss_armor_price}:
+				if {player::bossArmorHasBought::%player's uuid%} is not true:
+					set {player::bossArmorHasBought::%player's uuid%} to true
+					send "&eYou have bought &cx1 &8Boss Armor &asuccessfully!" to player
+
+					set {_armorList::*} to unbreakable netherite helmet named "&8Boss Armor", unbreakable netherite chestplate named "&8Boss Armor", unbreakable netherite leggings named "&8Boss Armor" and unbreakable netherite boots named "&8Boss Armor"
+					give player {_armorList::*}
+
+				else:
+					close player's inventory
+					send "&cYou already bought this!"
+			else:
+				send "&cInsufficient &8Boss Tokens" to player
+
+		else if index of event-slot is 16:	
+			if {bosstokens::%player's uuid%} >= {@boss_pick_price}:
+				if {player::bossPickHasBought::%player's uuid%} is not true:
+					set {player::bossPickHasBought::%player's uuid%} to true
+					send "&eYou have bought &cx1 &8Boss Pickaxe &asuccessfully!" to player
+					give player 1 of unbreakable netherite pickaxe named "&8Boss Pickaxe" 
+
+					
+				else:
+					close player's inventory
+					send "&cYou already bought this!"
+			else:
+				send "&cInsufficient &8Boss Tokens" to player
+
+on citizen right click:
+	NPC is named "boss":
+		bossTiersInv(player)
+
+on citizen right click:
+	NPC is named "bShop":
+		bossShopInv(player)
+				
